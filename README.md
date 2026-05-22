@@ -1,112 +1,88 @@
-# 🌈  React Native Iconly Icons
+# React Native Iconly
 
-[![NPM](https://img.shields.io/npm/v/react-native-iconly.svg)](https://www.npmjs.com/package/react-native-iconly)
-[![JavaScript Style Guide](https://img.shields.io/badge/code_style-standard-brightgreen.svg)](https://standardjs.com)
-[![npm downloads](https://img.shields.io/npm/dm/react-native-iconly.svg?style=flat-round)](https://www.npmjs.com/package/react-native-iconly)
+A React Native component library for the **Iconly** icon set, rendered with [`react-native-svg`](https://github.com/software-mansion/react-native-svg). Written in TypeScript, **Fabric / New Architecture ready**, six icon sets, fully tree-shakeable.
 
+Based on [Iconly Essential Icons (v2)](https://ui8.net/piqodesign/products/iconly-essential-icons). Port of [react-iconly](https://www.npmjs.com/package/react-iconly) to React Native.
 
-**react-native-iconly** is a fork of [react-iconly](https://www.npmjs.com/package/react-iconly) that is very half-assedly put together and rushed to completion using some very manual scripts. It uses [react-native-svg](https://www.npmjs.com/package/react-native-svg) as a substitute for the original html svg backend. It also uses typescript instead of javascript.
+## Sets
 
-## READ THIS
-This was very quickly put together. Some things may not work. I may update this in the future. Use at your own discretion.
+`bold` · `bulk` · `light` · `broken` · `two-tone` · `curved`
 
-## Based on Iconly Essential Icons [Iconly v2](https://ui8.net/piqodesign/products/iconly-essential-icons)
+## Requirements
 
-🌐 [Website](https://react-native-iconly.jrgarciadev.com/)
+- React `>= 18`
+- `react-native-svg` `>= 15` (peer dependency — install it in your app)
 
-### Sets
-- Bold
-- Bulk
-- Light Border
-- Broken
-- Two Tone
-- Curved (New)
+## Installation
 
-### Installation
-    yarn add react-native-iconly
+Installed from GitHub (not published to npm). Install `react-native-svg` alongside it.
 
-  or
+```sh
+# bun
+bun add git@github.com:deounix/react-native-iconly.git react-native-svg
 
-    npm i react-native-iconly
+# npm
+npm install git+ssh://git@github.com:deounix/react-native-iconly.git react-native-svg
 
-### Usage
-
-```jsx
-import React from 'react';
-import { Home } from 'react-native-iconly';
-
-const App = () => {
-  return <Home color="#A1D808" />
-};
-
-export default App;
+# yarn
+yarn add git@github.com:deounix/react-native-iconly.git react-native-svg
 ```
 
-You can also wrap your app inside a `IconlyProvider` component, this will make all the icons that are within the context Use the Provider properties
+`react-native-svg` is a **peer dependency**, so the library always uses the single copy provided by your app — no version clashes, no duplicate native module registration.
 
-If you set specific props for each Icon the Provider properties will be overwritten
+## Usage
 
-```jsx
-import React from 'react';
-import { IconlyProvider, Home, Notification } from 'react-native-iconly';
+```tsx
+import { Home } from "react-native-iconly";
 
-const App = () => {
-  return (
-    <IconlyProvider set="bulk" primaryColor="blueviolet" secondaryColor="blue" stroke="bold" size="xlarge">
-      <Home />
-      <Notification primaryColor="yellow" />
-    </IconlyProvider>
-  )
-};
-
-export default App;
+export const Example = () => <Home primaryColor="#1e7cf2" />;
 ```
 
-Icons can be configured with inLine props:
-```jsx
-<Home set="curved" primaryColor="blueviolet" secondaryColor="blue" stroke="bold" size="xlarge"/>
-```
-You can also include the whole icon pack:
+### Per-icon props
 
-```jsx
-import React from 'react';
-import * as IconlyPack from 'react-native-iconly';
-
-const App = () => {
-  return <IconlyPack.Home set="bulk" primaryColor="blueviolet" secondaryColor="blue" stroke="bold" size="xlarge"/>
-};
-
-export default App;
+```tsx
+<Home set="curved" primaryColor="#1e7cf2" secondaryColor="#60a5fa" stroke="bold" size={32} />
 ```
 
-Custom style example
+### Provider (shared defaults)
 
-```jsx
-import React from 'react';
-import { Send } from 'react-native-iconly';
+Wrap a subtree in `IconlyProvider`; every icon inside inherits its props. Per-icon props override the provider.
 
-const App = () => {
-  return <Send style={{ transform: 'rotate(45deg)' }} primaryColor="red" stroke="bold" size="xlarge"/>
-};
+```tsx
+import { IconlyProvider, Home, Notification } from "react-native-iconly";
 
-export default App;
-
+export const App = () => (
+  <IconlyProvider set="bulk" primaryColor="#1e7cf2" secondaryColor="#60a5fa" stroke="bold" size="large">
+    <Home />
+    <Notification primaryColor="#fbbf24" />
+  </IconlyProvider>
+);
 ```
+
+Read the active theme anywhere with the `useIconlyTheme()` hook.
+
+### Whole pack
+
+```tsx
+import * as Iconly from "react-native-iconly";
+
+<Iconly.Home set="bulk" size={48} />;
+```
+
 ## Props
 
-| Prop | Type | Default | Note |
+| Prop | Type | Default | Notes |
 |---|---|---|---|
-| `label` | `string` |  | String to Use as the aria-label for the icon. Use an empty string when you already have readable Text around the icon,like Text inside a button.
-| `filled` | `boolean` | `false` | Set de icons sets to 'bold'.
-| `primaryColor` | `string` | `currentColor` | Primary colour for icons.
-| `secondaryColor` | `string` | `currentColor` | Secondary colour for **two-tone** and **bulk** icons set.
-| `size` | `number` | `small` `medium` `large` `xlarge` | `medium` | Control the size of the icon, you can set a custom **number** size
-| `set` | `light` `bold` `two-tone` `bulk`  `broken` `curved`  | `light` | Iconly set option.
-| `stroke` | `light` `regular` `bold` | `regular` | Sets the Line stroke for **light** and **two-tone** icons set.
-| `style` | `object` |  | Custom styles property.
+| `size` | `number \| "small" \| "medium" \| "large" \| "xlarge"` | `"medium"` | `small`=16, `medium`=24, `large`=32, `xlarge`=48, or any number (px). |
+| `set` | `"bold" \| "bulk" \| "light" \| "broken" \| "two-tone" \| "curved"` | `"light"` | Icon style. |
+| `primaryColor` | `string` | `"currentColor"` | Main fill/stroke colour. |
+| `secondaryColor` | `string` | = `primaryColor` | Accent for `two-tone` and `bulk`. |
+| `stroke` | `"light" \| "regular" \| "bold"` | `"regular"` | Stroke width for `light` / `two-tone` (1 / 1.5 / 2). |
+| `filled` | `boolean` | `false` | Shortcut: forces the `bold` set. |
+| `label` | `string` | — | Accessibility label. |
 
------
+Any other [`react-native-svg`](https://github.com/software-mansion/react-native-svg) `Svg` prop (e.g. `style`, `opacity`) is forwarded.
 
 ## License
 
-MIT [jrgarciadev](https://github.com/jrgarciadev) and [otaviomad](https://github.com/otaviomad)
+MIT
