@@ -1,44 +1,67 @@
-import React, { memo, useContext } from 'react';
-import Svg, { SvgProps } from 'react-native-svg';
-import { getSize, getThemeProp, getStroke, getOpacity } from './utils';
-import { IconlyContext, Theme } from './context';
+import * as React from "react";
+import { memo, useContext } from "react";
+import Svg, { type SvgProps } from "react-native-svg";
 
-export interface Props extends SvgProps {
+import { getOpacity, getSize, getStroke, getThemeProp } from "./utils";
+import { IconlyContext } from "./context";
+import type { SizeName, StrokeName } from "./constants";
+
+export interface IconProps extends SvgProps {
   label?: string;
   filled?: boolean;
   primaryColor?: string;
   secondaryColor?: string;
-  size?: number | 'small' | 'medium' | 'large' | 'xlarge';
-  set?: 'bold' | 'bulk' | 'light' | 'broken' | 'two-tone' | 'curved';
-  stroke?: 'light' | 'regular' | 'bold';
+  size?: number | SizeName;
+  set?: "bold" | "bulk" | "light" | "broken" | "two-tone" | "curved";
+  stroke?: StrokeName;
 }
 
-function withIcon(Component: React.ElementType): React.MemoExoticComponent<(props: Props) => JSX.Element> {
-  const IconWrapper = ({ size, label, primaryColor, secondaryColor, filled, set, stroke, ...restProps }: Props) => {
+const withIcon = (
+  // Icons are generated and have slightly inconsistent inner prop types, so the
+  // wrapper accepts any element type and feeds it the resolved render props.
+  Component: React.ElementType,
+): React.MemoExoticComponent<(props: IconProps) => React.ReactElement> => {
+  const IconWrapper = ({
+    size,
+    label,
+    primaryColor,
+    secondaryColor,
+    filled,
+    set,
+    stroke,
+    ...restProps
+  }: IconProps): React.ReactElement => {
     const theme = useContext(IconlyContext);
-    const iconSize = getSize(size) || getSize(getThemeProp('size', theme) as Theme['size']) || '24px';
 
-    const iconPrimaryColor = primaryColor || getThemeProp('primaryColor', theme) || 'currentColor';
-
-    const iconSecondaryColor =
-      secondaryColor || getThemeProp('secondaryColor', theme) || iconPrimaryColor || 'currentColor';
+    const iconSize: number = getSize(size ?? getThemeProp("size", theme) ?? "medium");
+    const color: string =
+      primaryColor ?? getThemeProp("primaryColor", theme) ?? "currentColor";
+    const secondary: string =
+      secondaryColor ?? getThemeProp("secondaryColor", theme) ?? color;
+    const strokeWidth: number = getStroke(
+      stroke ?? getThemeProp("stroke", theme) ?? "regular",
+    );
 
     return (
-      <Svg width={iconSize} height={iconSize} viewBox="0 0 24 24" aria-label={label || undefined} {...restProps}>
+      <Svg
+        width={iconSize}
+        height={iconSize}
+        viewBox="0 0 24 24"
+        accessibilityLabel={label}
+        {...restProps}
+      >
         <Component
-          color={iconPrimaryColor}
+          color={color}
           opacity={getOpacity(primaryColor, secondaryColor)}
-          secondaryColor={iconSecondaryColor}
-          set={filled ? 'bold' : set || getThemeProp('set', theme) || 'light'}
-          strokeWidth={
-            stroke ? getStroke(stroke) : getStroke(getThemeProp('stroke', theme) as Theme['stroke']) || '1.5px'
-          }
+          secondaryColor={secondary}
+          set={filled ? "bold" : (set ?? getThemeProp("set", theme) ?? "light")}
+          strokeWidth={strokeWidth}
         />
       </Svg>
     );
   };
-  const MemoIcon = memo(IconWrapper);
-  return MemoIcon;
-}
+
+  return memo(IconWrapper);
+};
 
 export default withIcon;

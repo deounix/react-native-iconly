@@ -1,43 +1,51 @@
-import React, { createContext, useContext } from 'react';
+import * as React from "react";
+import { createContext, useContext } from "react";
+
+import type { SizeName, StrokeName } from "./constants";
+
+export type IconSet = "bold" | "bulk" | "light" | "broken" | "two-tone" | "curved";
 
 export interface Theme {
   primaryColor?: string;
   secondaryColor?: string;
-  size?: number | 'small' | 'medium' | 'large' | 'xlarge';
-  set?: 'bold' | 'bulk' | 'light' | 'broken' | 'two-tone' | 'curved';
-  stroke?: 'light' | 'regular' | 'bold';
+  size?: number | SizeName;
+  set?: IconSet;
+  stroke?: StrokeName;
 }
 
-interface Props extends Theme {
+interface ProviderProps extends Theme {
   children: React.ReactNode;
 }
 
 const defaultValue: Theme = {
-  primaryColor: 'currentColor',
-  set: 'light',
-  size: 'medium',
-  stroke: 'regular',
+  primaryColor: "currentColor",
+  set: "light",
+  size: "medium",
+  stroke: "regular",
 };
 
-export const IconlyContext = createContext(defaultValue);
-IconlyContext.displayName = 'IconlyIconlyContext';
+export const IconlyContext = createContext<Theme>(defaultValue);
+IconlyContext.displayName = "IconlyContext";
 
-export const IconlyProvider = ({ children, primaryColor, secondaryColor, set, size, stroke }: Props) => {
-  const value = {
-    primaryColor: primaryColor || 'currentColor',
-    secondaryColor,
-    set: set || 'light',
-    size: size || 'medium',
-    stroke: stroke || 'regular',
-  };
+export const IconlyProvider = ({
+  children,
+  primaryColor,
+  secondaryColor,
+  set,
+  size,
+  stroke,
+}: ProviderProps): React.ReactElement => (
+  <IconlyContext.Provider
+    value={{
+      primaryColor: primaryColor ?? "currentColor",
+      secondaryColor,
+      set: set ?? "light",
+      size: size ?? "medium",
+      stroke: stroke ?? "regular",
+    }}
+  >
+    {children}
+  </IconlyContext.Provider>
+);
 
-  return <IconlyContext.Provider value={value}>{children}</IconlyContext.Provider>;
-};
-
-export const useIconlyTheme = () => {
-  const context = useContext(IconlyContext);
-  if (context === undefined) {
-    throw new Error('UseIconlyTheme must be Used within a IconlyProvider');
-  }
-  return context;
-};
+export const useIconlyTheme = (): Theme => useContext(IconlyContext);
